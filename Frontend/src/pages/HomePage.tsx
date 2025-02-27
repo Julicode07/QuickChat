@@ -28,6 +28,9 @@ function Homepage() {
         { id: 8, name: 'Lau' },
         { id: 9, name: 'Santa' },
         { id: 10, name: 'Usme' },
+        { id: 11, name: 'Cami' },
+        { id: 12, name: 'Lalo' },
+        { id: 13, name: 'Dany' },
     ];
 
 
@@ -118,12 +121,19 @@ function Homepage() {
                                 </div>
                             </div>
 
-                            <ul className="px-4 pb-4 overflow-y-auto">
+                            <ul className="px-4 max-h-[calc(100vh-10rem)] overflow-y-auto">
                                 {results.length > 0 ? (
                                     results.map((chat) => (
-                                        <li key={chat.id} className="mb-3 p-2 hover:bg-blue-700 rounded-md cursor-pointer">
+                                        <motion.li
+                                            key={chat.id}
+                                            className="mb-3 p-2 hover:bg-blue-700 rounded-md cursor-pointer"
+                                            initial={{ opacity: 0, y: 50 }} // Inicia oculto y desplazado
+                                            animate={{ opacity: 1, y: 0 }} // Se anima hacia su posición
+                                            exit={{ opacity: 0, y: -50 }} // Se mueve hacia arriba y se oculta al salir
+                                            transition={{ duration: 0.3 }} // Duración de la animación
+                                        >
                                             {chat.name}
-                                        </li>
+                                        </motion.li>
                                     ))
                                 ) : (
                                     <li className="mb-3 p-2">No se encontraron resultados.</li>
