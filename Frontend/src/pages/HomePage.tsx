@@ -1,11 +1,73 @@
-import Background from "../components/Background";
+import React from "react";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+const Background = React.lazy(() => import("../components/Background"));
+const Loader = React.lazy(() => import("../components/Loader"));
 
-const App = () => {
+function Homepage() {
+    const [loading, setLoading] = useState(true);
+    const [focused, setFocused] = useState(false);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setLoading(false);
+        }, 3000);
+    }, []);
     return (
         <>
-            <Background></Background>
+            {loading ? <Loader /> :
+                <Background>
+                    <div className="relative z-50 flex h-screen">
+                        <aside className="flex flex-col gap-3 w-1/4  text-white p-4 overflow-y-auto">
+                            <div className="flex items-center gap-1">
+                                <img src="/QuickChat.png" className="w-10 h-10" alt="Logo Quick Chat" />
+                                <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-blue-600 cursor-">Quick Chat</h2>
+                            </div>
+                            <div className="relative flex w-full pl-2 py-1 rounded-md bg-gray-600 text-white group">
+                                <AnimatePresence>
+                                    {!focused && (
+                                        <motion.div
+                                            className="flex justify-center items-center absolute ri-search-line text-white w-6 h-6"
+                                            initial={{ rotate: 125 }}
+                                            animate={{ rotate: 0 }}
+                                            exit={{ rotate: 90, opacity: 0 }}
+                                            transition={{ duration: 0.1 }}
+                                        >
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <AnimatePresence>
+                                    {focused && (
+                                        <motion.div
+                                            className="flex justify-center items-center absolute ri-arrow-left-line text-blue-400 w-6 h-6 cursor-pointer text-xl"
+                                            initial={{ rotate: -90, opacity: 0 }}
+                                            animate={{ rotate: 0, opacity: 1 }}
+                                            exit={{ rotate: -90, opacity: 0 }}
+                                            transition={{ duration: 0.1 }}
+                                            onClick={() => setFocused(false)}
+                                        ></motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <input
+                                    type="text"
+                                    placeholder="Buscar..."
+                                    className="relative left-7 focus:border-none focus:outline-none bg-transparent w-full"
+                                    onFocus={() => setFocused(true)}
+                                    onBlur={() => setFocused(false)}
+                                />
+                            </div>
+                        </aside>
+
+                        <div className="w-3/4 bg-gray-700/20 p-6 text-white">
+                            <h1 className="text-3xl mb-4 text-blue-400 font-semibold">Bienvenido al Chat</h1>
+                        </div>
+                    </div>
+                </Background>
+            }
         </>
-    );
+    )
 }
 
-export default App
+export default Homepage
