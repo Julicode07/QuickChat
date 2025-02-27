@@ -36,7 +36,7 @@ const Loader = () => {
             ></motion.div>
 
             <div className='relative z-50 flex flex-col items-center gap-2'>
-                <img src="/QuickChat.png" alt="Quick Chat" className='w-28 h-28' />
+                <img src="/quickchat.png" alt="Quick Chat" className='w-28 h-28' />
                 <h1 className='text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400'>
                     Quick Chat
                 </h1>
