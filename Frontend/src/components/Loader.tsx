@@ -8,7 +8,6 @@ const Loader = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
         >
-            {/* Conic Gradient Animation */}
             <motion.div
                 className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,#3b82f6_0deg,#10b981_72deg,#6366f1_144deg,#8b5cf6_216deg,#ec4899_288deg,#3b82f6_360deg)] opacity-90 blur-[200px]"
                 animate={{ rotate: 360 }}
@@ -19,7 +18,6 @@ const Loader = () => {
                 }}
             ></motion.div>
 
-            {/* Darker background overlay */}
             <motion.div
                 className="absolute inset-0 bg-slate-900 opacity-75"
                 initial={{ opacity: 0 }}
@@ -27,7 +25,6 @@ const Loader = () => {
                 transition={{ duration: 1, ease: "easeInOut" }}
             ></motion.div>
 
-            {/* Radial gradient overlay */}
             <motion.div
                 className="absolute inset-0 bg-[radial-gradient(circle_600px_at_50%_-100%,#ffffff10,transparent)]"
                 initial={{ opacity: 0 }}
@@ -36,7 +33,7 @@ const Loader = () => {
             ></motion.div>
 
             <div className='relative z-50 flex flex-col items-center gap-2'>
-                <img src="/quickchat.png" alt="Quick Chat" className='w-28 h-28' />
+                <img src="/quickchat.webp" alt="Quick Chat" className='w-28 h-28' />
                 <h1 className='text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400'>
                     Quick Chat
                 </h1>
