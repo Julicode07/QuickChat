@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroui/system": "^2.4.10",
+    "@heroui/theme": "^2.4.9",
+    "@heroui/tooltip": "^2.2.11",
     "@tailwindcss/vite": "^4.0.9",
     "framer-motion": "^11.18.2",
     "postprocessing": "^6.36.7",
