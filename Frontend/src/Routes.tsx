@@ -1,7 +1,7 @@
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
-import NotFound from "./NotFound";
+import NotFound from "./pages/NotFound";
 import ChatInfo from "./pages/[Chat]";
 
 function RoutesApp() {

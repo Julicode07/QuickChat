@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import chats, { Chat } from '../components/SideBar/Utils/chatUtils';
+import chats, { Chat } from '../utils/chatUtils';
 
 const ChatInfo = () => {
     const { id } = useParams<{ id: string }>();
