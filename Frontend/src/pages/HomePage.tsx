@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+
+import { useIsMobile } from "../hooks/useIsMobile";
 import { motion } from "framer-motion";
 const Background = React.lazy(() => import("../components/Background"));
 import Loader from "../components/Loader";
@@ -10,7 +12,7 @@ function Homepage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [results, setResults] = useState<Chat[]>([]);
-
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         const filteredChats = filterChats(chats, searchTerm);
@@ -28,7 +30,7 @@ function Homepage() {
             {loading ? <Loader /> :
                 <Background>
                     <div className="relative z-50 flex h-screen">
-                        <aside className="flex flex-col gap-1 w-1/4 text-white">
+                        <aside className="flex flex-col gap-1 w-full md:w-1/4 text-white">
                             <div className="flex items-center gap-1 pt-4 pb-2 px-4 border-b-2 border-slate-900">
                                 <img src="/quickchat.webp" className="w-8 h-8" alt="Logo Quick Chat" />
                                 <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-blue-600 cursor-pointer">Quick Chat</h2>
@@ -45,7 +47,8 @@ function Homepage() {
                                     {/*  CHATS */}
                                     {results.length > 0 ? (
                                         results.map((chat) => (
-                                            <motion.div
+                                            <motion.a
+                                                {...(isMobile ? { href: `/chat/${chat.id}` } : {})}
                                                 key={chat.id}
                                                 className="flex gap-2 px-4 py-2 hover:bg-gray-800 cursor-pointer font-normal w-full"
                                                 initial={{ opacity: 0, y: 50 }}
@@ -67,7 +70,7 @@ function Homepage() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </motion.div>
+                                            </motion.a>
                                         ))
                                     ) : (
                                         <li className="mb-3 p-2 ml-3 font-semibold">No tienes chats recientes</li>
@@ -76,7 +79,7 @@ function Homepage() {
                             </div>
                         </aside>
 
-                        <div className="w-3/4 bg-gray-700/20 p-6 text-white">
+                        <div className="w-3/4 bg-gray-700/20 p-6 text-white hidden md:block transition-all duration-300">
                             <h1 className="text-3xl mb-4 text-blue-400 font-semibold">Bienvenido al Chat</h1>
                         </div>
                     </div>
