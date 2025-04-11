@@ -91,44 +91,17 @@ function Homepage() {
                       animate={{ x: 0 }}
                       exit={{ x: '100%' }}
                       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                      className="fixed top-0 left-0 z-50 md:hidden h-screen w-screen bg-gray-900 text-white"
+                      className="fixed top-0 left-0 z-50 md:hidden h-dvh w-screen bg-gray-900 text-white flex flex-col"
                     >
                       <header className="flex gap-3 items-center px-3 py-3 w-full bg-gray-800/80 backdrop-blur-md border-b border-gray-700">
-                        <i
-                          className="ri-arrow-left-line text-xl cursor-pointer text-blue-500 hover:text-blue-700 font-bold transition duration-300"
-                          onClick={() => setSelectedChat(null)}
-                        ></i>
-                        <div className="flex gap-3 items-center">
-                          <motion.div
-                            key={`mobile-icon-${selectedChat.id}`}
-                            initial={{ opacity: 0.5 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0.5 }}
-                            transition={{ duration: 0.2 }}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="flex items-center justify-center bg-zinc-500 h-8 w-8 text-white rounded-full shadow-md"
-                          >
-                            <i className={`${selectedChat.img} text-xl`}></i>
-                          </motion.div>
-                          <motion.span
-                            key={`mobile-name-${selectedChat.id}`}
-                            initial={{ opacity: 0.5 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0.5 }}
-                            transition={{ duration: 0.2 }}
-                            className="text-lg font-semibold text-zinc-100"
-                          >
-                            {selectedChat.name}
-                          </motion.span>
-                        </div>
+                        {/* Back button & info */}
                       </header>
 
-                      <main className="flex-1 overflow-y-auto pt-2 px-4 pb-20">
+                      <main className="flex-1 overflow-y-auto pt-2 px-4">
                         {selectedChat.message}
                       </main>
 
-                      <footer className="absolute bottom-0 left-0 w-full h-20 bg-gray-800/60 backdrop-blur-md border-t border-gray-700">
+                      <footer className="w-full bg-gray-800/60 backdrop-blur-md border-t border-gray-700">
                         <div className="flex gap-2 items-center justify-between px-4 py-4">
                           <input
                             type="text"
