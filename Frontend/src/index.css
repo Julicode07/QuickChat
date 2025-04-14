@@ -32,3 +32,7 @@ html {
     height: 8px;
     transition: height 0.3s ease;
 }
+
+html {
+  --real-height: 100vh;
+}
