@@ -18,7 +18,11 @@ app.disable("x-powered-by");
 
 app.use(cors({
     origin: (origin, callback) => {
-        console.log("🔥 Origin recibido:", origin);
+        app.use((req, res, next) => {
+            console.log(`🔥 ${req.method} ${req.originalUrl} desde ${req.headers.origin}`);
+            next();
+        });
+
         if ((!origin && process.env.NODE_ENV === "development") || origin === clientUrl) {
             callback(null, true);
         }
@@ -29,6 +33,22 @@ app.use(cors({
     },
     credentials: true,
 }));
+
+
+app.use(cors({
+    origin: (origin, callback) => {
+        console.log("🔥 Origin recibido:", origin);
+        if (!origin || origin === clientUrl) {
+            // Permitir sin origin (como al recargar desde el navegador)
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    // origin http://localhost:5173
+    credentials: true,
+}));
+
 
 app.use(express.json());
 app.use(cookieParser());

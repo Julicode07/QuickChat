@@ -1,7 +1,6 @@
-// controllers/auth.controller.js
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 
 export const register = async (req, res) => {
     const { email, name, password } = req.body;
@@ -22,7 +21,15 @@ export const register = async (req, res) => {
         });
 
         await newUser.save();
-        res.status(201).json({ message: "Usuario creado exitosamente" });
+
+        generateTokenAndSetCookie(res, user._id);
+
+        res.status(201).json({
+            success: true, message: "User created successfully", user: {
+                ...user._doc,
+                password: undefined
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error al crear el usuario" });
@@ -46,22 +53,11 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Contraseña incorrecta" });
         }
 
-        const token = jwt.sign(
-            { id: user._id, name: user.name },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-        );
+        generateTokenAndSetCookie(res, user._id);
 
         user.isActive = true;
         user.lastLogin = new Date();
         await user.save();
-
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "Lax",
-            maxAge: 3600000,
-        });
 
         res.json({
             message: "Login exitoso",
@@ -79,21 +75,16 @@ export const login = async (req, res) => {
     }
 };
 
-export const getMe = async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
-        res.json({
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            showActiveStatus: user.showActiveStatus,
-            showLastSeen: user.showLastSeen,
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error al obtener los datos del usuario" });
+export const getMe = (req, res) => {
+    if (!req.user) {
+        return res
+            .status(401)
+            .json({ success: false, message: "Unauthorized" });
     }
+
+    res.status(200).json({ success: true, user: req.user });
 };
+
 
 export const logout = async (req, res) => {
     try {

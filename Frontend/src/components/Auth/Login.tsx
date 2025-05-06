@@ -5,13 +5,18 @@ import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Checkbox } from '../ui/checkbox'
 import { Button } from '../ui/button'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function Login() {
-    const [showPassword, setShowPassword] = useState(false)
-    const handleSignIn = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        alert("Sign in submitted")
-    }
+    const { login } = useAuth();
+    const [showPassword, setShowPassword] = useState(false);
+    const [identifier, setIdentifier] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        await login(identifier, password);
+    };
 
     return (
         <div>
@@ -24,7 +29,7 @@ export default function Login() {
                 >
                     <div className='space-y-2'>
                         <Label htmlFor="identifier">Usuario o Correo</Label>
-                        <Input id="identifier" type="identifier" placeholder="Ingrese su usuario o correo" />
+                        <Input id="identifier" type="identifier" placeholder="Ingrese su usuario o correo" onChange={(e) => setIdentifier(e.target.value)} />
                     </div>
                 </motion.div>
 
@@ -38,7 +43,7 @@ export default function Login() {
                         <Label htmlFor="password">Contraseña</Label>
                     </div>
                     <div className='relative'>
-                        <Input type={showPassword ? "text" : "password"} id="password" placeholder="••••••••" />
+                        <Input type={showPassword ? "text" : "password"} id="password" placeholder="••••••••" onChange={(e) => setPassword(e.target.value)} />
                         <motion.button
                             type="button"
                             aria-label="toggle password visibility"

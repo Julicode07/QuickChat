@@ -1,11 +1,31 @@
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import "../index.css";
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useLocation, useNavigate } from "react-router";
 
 const Login = React.lazy(() => import("../components/Auth/Login"));
 const Register = React.lazy(() => import("../components/Auth/Register"));
 
 function AuthForm({ activeTab }: { activeTab: string }) {
+    const { authed, loading } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [showModal, setShowModal] = useState(false);
+
+    const from = location.state?.from?.pathname || "/";
+
+    useEffect(() => {
+        if (!loading && authed) {
+            setShowModal(true);
+
+            const timeout = setTimeout(() => {
+                navigate(from, { replace: true });
+            }, 5500);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [authed, loading, navigate, from]);
     return (
         <div className="flex min-h-screen justify-center items-center bg-black/10">
             <LayoutGroup>
@@ -45,6 +65,35 @@ function AuthForm({ activeTab }: { activeTab: string }) {
                     </AnimatePresence>
                 </motion.div>
             </LayoutGroup>
+
+            <AnimatePresence>
+                {showModal && (
+                    <>
+                        {/* Fondo con opacidad */}
+                        <motion.div
+                            className="fixed inset-0 bg-black/40 z-40"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.4 }}
+                        />
+
+                        {/* Contenido del modal */}
+                        <motion.div
+                            className="fixed inset-0 flex items-center justify-center z-50"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.4 }}
+                        >
+                            <div className="bg-white p-6 rounded-xl shadow-lg text-center max-w-sm w-full">
+                                <h2 className="text-xl font-bold mb-2">¡Ya has iniciado sesión!</h2>
+                                <p className="text-gray-600">Serás redirigido automáticamente...</p>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
