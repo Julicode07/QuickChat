@@ -39,13 +39,11 @@ app.use(cors({
     origin: (origin, callback) => {
         console.log("🔥 Origin recibido:", origin);
         if (!origin || origin === clientUrl) {
-            // Permitir sin origin (como al recargar desde el navegador)
             callback(null, true);
         } else {
             callback(new Error("Not allowed by CORS"));
         }
     },
-    // origin http://localhost:5173
     credentials: true,
 }));
 

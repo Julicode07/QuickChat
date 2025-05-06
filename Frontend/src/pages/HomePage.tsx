@@ -6,6 +6,11 @@ import SearchInput from "../components/SearchInput";
 import chats, { Chat, filterChats } from "../utils/chatUtils";
 
 const Background = React.lazy(() => import("../components/Background"));
+interface User {
+  name: string;
+  email: string;
+}
+
 
 function Homepage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,6 +21,29 @@ function Homepage() {
   const [visibleHeight, setVisibleHeight] = useState(window.innerHeight);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_AUTH_BACKEND_URL}/api/auth/me`,
+          { credentials: "include" }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.error("Error verificando autenticación:", err);
+        setUser(null);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
 
   useEffect(() => {
@@ -51,47 +79,76 @@ function Homepage() {
     };
   }, [isMobile]);
 
+  const handleLogout = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_AUTH_BACKEND_URL}/api/auth/logout`,
+        {
+          method: "POST",
+          credentials: "include"
+        }
+      );
+      if (res.ok) {
+        setUser(null);
+        window.location.href = "/login";
+
+      }
+    } catch (err) {
+      console.error("Error al cerrar sesión:", err);
+    }
+  };
+
   return (
     <Background>
       <div className="relative z-50 flex h-full overflow-hidden">
-        {/* Sidebar */}
         <aside className="flex flex-col gap-1 w-full md:w-1/4 text-white">
-          <div className="flex justify-between gap-1 pt-4 pb-2 px-4 border-b-2 border-slate-900">
+          <div className="flex justify-between gap-1 py-3 pl-3 pr-4 border-b-2 border-slate-900">
             <div className="flex items-center gap-1">
               <img src="/quickchat.webp" className="w-8 h-8" alt="Logo Quick Chat" />
               <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-blue-600 cursor-pointer">
                 Quick Chat
               </h2>
             </div>
-
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-              >
-                Hola
-              </button>
-
-              <AnimatePresence>
-                {isDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded z-10 overflow-hidden"
+            {
+              user ? (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="h-8 w-8 rounded-full bg-zinc-300 my-auto cursor-pointer"
                   >
-                    <ul className="text-sm text-gray-700">
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Perfil</li>
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Configuración</li>
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Cerrar sesión</li>
-                    </ul>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                    <i className="ri-user-fill text-xl text-zinc-600"></i>
+                  </button>
+
+                  <AnimatePresence>
+                    {isDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-2 w-40 bg-slate-800 shadow-lg rounded-xl z-10 overflow-hidden"
+                      >
+                        <div >
+                          <p className="px-4 py-2 text-sm text-white flex flex-col gap-1">
+                            <span className="font-semibold">{user.name}</span>
+                            <span className="text-xs">{user.email}</span>
+                          </p>
+                        </div>
+                        <ul className="bg-slate-700 text-sm text-white">
+                          <li className="px-4 py-2 hover:bg-slate-600 cursor-pointer">Perfil</li>
+                          <li className="px-4 py-2 hover:bg-slate-600 cursor-pointer">Configuración</li>
+                          <li className="px-4 py-2 hover:bg-slate-600 cursor-pointer" onClick={handleLogout}>Cerrar sesión</li>
+                        </ul>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <p></p>
+              )
+            }
           </div>
-          <div className="sticky top-0 px-5 pb-3 backdrop-blur-xl">
+          <div className="sticky top-0 px-4 pb-3 backdrop-blur-xl">
             <h1 className="text-xl font-semibold">Chats</h1>
             <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </div>
@@ -110,7 +167,7 @@ function Homepage() {
                   <div className="flex items-center justify-center bg-gray-300 h-12 w-12 text-gray-500 rounded-full">
                     <i className={`${chat.img} text-2xl`}></i>
                   </div>
-                  <div className="flex flex-col justify-center w-[calc(100%-4.5rem)]">
+                  <div className="flex flex-col justify-center w-[calc(100%-3.5rem)]">
                     <p className="text-base truncate">{chat.name}</p>
                     <div className="flex gap-1">
                       <MessageStatus status="delivered" isSeen={false} />
@@ -127,7 +184,6 @@ function Homepage() {
           </ul>
         </aside>
 
-        {/* Main Chat Area */}
         <AnimatePresence mode="wait" initial={false}>
           {selectedChat ? (
             isMobile ? (
@@ -210,8 +266,8 @@ function Homepage() {
             </motion.section>
           )}
         </AnimatePresence>
-      </div>
-    </Background>
+      </div >
+    </Background >
   );
 }
 
