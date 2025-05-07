@@ -9,7 +9,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 interface AuthContextType {
     authed: boolean;
     loading: boolean;
-    login: (email: string, password: string) => Promise<void>;
+    register: (name: string, email: string, password: string) => Promise<void>;
+    login: (
+        identifier: string,
+        password: string
+    ) => Promise<{ success: boolean; typeMessage: string; message: string }>;
     logout: () => Promise<void>;
 }
 
@@ -49,6 +53,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         checkAuth();
     }, []);
 
+    const register = async (name: string, email: string, password: string) => {
+        try {
+            const res = await fetch(
+                `${import.meta.env.VITE_AUTH_BACKEND_URL}/api/auth/register`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ name, email, password }),
+                }
+            );
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || "Register failed");
+            }
+
+            const from = (location.state as { from?: Location })?.from?.pathname || "/login";
+            navigate(from, { replace: true });
+        } catch (error) {
+            if (error instanceof Error) {
+                alert(error.message);
+            } else {
+                alert("Ocurrió un error inesperado");
+            }
+        }
+    };
+
     const login = async (identifier: string, password: string) => {
         try {
             const res = await fetch(
@@ -61,19 +92,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 }
             );
             const data = await res.json();
+
             if (!res.ok) {
-                throw new Error(data.message || "Login failed");
+                return {
+                    success: false,
+                    typeMessage: data.typeMessage || 'unknown',
+                    message: data.message || "Error durante el inicio de sesión",
+                };
             }
 
             setAuthed(true);
             const from = (location.state as { from?: Location })?.from?.pathname || "/";
             navigate(from, { replace: true });
+
+            return {
+                success: true,
+                typeMessage: '',
+                message: "Inicio de sesión exitoso",
+            };
         } catch (error) {
-            if (error instanceof Error) {
-                alert(error.message);
-            } else {
-                alert("Ocurrió un error inesperado");
-            }
+            console.error("Error durante el login:", error);
+            return {
+                success: false,
+                typeMessage: 'unknown',
+                message: "Ocurrió un error inesperado",
+            };
         }
     };
 
@@ -92,7 +135,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     return (
-        <AuthContext.Provider value={{ authed, loading, login, logout }}>
+        <AuthContext.Provider value={{ authed, loading, register, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

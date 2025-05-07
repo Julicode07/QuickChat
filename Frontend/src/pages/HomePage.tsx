@@ -6,11 +6,11 @@ import SearchInput from "../components/SearchInput";
 import chats, { Chat, filterChats } from "../utils/chatUtils";
 
 const Background = React.lazy(() => import("../components/Background"));
+
 interface User {
   name: string;
   email: string;
 }
-
 
 function Homepage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,6 +22,8 @@ function Homepage() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [showModalConfirmLogout, setShowModalConfirmLogout] = useState(false);
+  const [showModalLogout, setShowModalLogout] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -79,24 +81,38 @@ function Homepage() {
     };
   }, [isMobile]);
 
-  const handleLogout = async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_AUTH_BACKEND_URL}/api/auth/logout`,
-        {
-          method: "POST",
-          credentials: "include"
-        }
-      );
-      if (res.ok) {
-        setUser(null);
-        window.location.href = "/login";
+  const handleConfirmLogout = async () => {
+    setIsDropdownOpen(false);
+    setShowModalConfirmLogout(true);
 
-      }
-    } catch (err) {
-      console.error("Error al cerrar sesión:", err);
-    }
   };
+
+  const handleLogout = async () => {
+    setShowModalConfirmLogout(false);
+    setShowModalLogout(true);
+
+    setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_AUTH_BACKEND_URL}/api/auth/logout`,
+          {
+            method: "POST",
+            credentials: "include",
+          }
+        );
+
+        if (response.ok) {
+          setUser(null);
+          window.location.href = "/login";
+        } else {
+          console.error("Fallo al cerrar sesión:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+      }
+    }, 2000);
+  };
+
 
   return (
     <Background>
@@ -137,7 +153,7 @@ function Homepage() {
                         <ul className="bg-slate-700 text-sm text-white">
                           <li className="px-4 py-2 hover:bg-slate-600 cursor-pointer">Perfil</li>
                           <li className="px-4 py-2 hover:bg-slate-600 cursor-pointer">Configuración</li>
-                          <li className="px-4 py-2 hover:bg-slate-600 cursor-pointer" onClick={handleLogout}>Cerrar sesión</li>
+                          <li className="px-4 py-2 hover:bg-slate-600 cursor-pointer" onClick={handleConfirmLogout}>Cerrar sesión</li>
                         </ul>
                       </motion.div>
                     )}
@@ -147,9 +163,79 @@ function Homepage() {
                 <p></p>
               )
             }
+
+            {showModalConfirmLogout && (
+              <AnimatePresence>
+                <motion.div
+                  className="fixed inset-0 bg-black/40 backdrop-blur-xl z-40"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.div
+                  className="fixed inset-0 flex items-center justify-center z-50"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="bg-slate-800 text-white p-6 rounded-2xl shadow-2xl text-center max-w-md w-full">
+                    <h2 className="text-3xl font-bold mb-2">
+                      ¿Cerrar sesión?
+                    </h2>
+                    <p className="mb-6 text-slate-300">
+                      ¿Estás seguro de que deseas cerrar tu sesión?
+                    </p>
+                    <div className="flex justify-center gap-4">
+                      <button
+                        onClick={handleLogout}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors cursor-pointer"
+                      >
+                        Sí, cerrar sesión
+                      </button>
+                      <button
+                        onClick={() => setShowModalConfirmLogout(false)}
+                        className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-md transition-colors cursor-pointer"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+            )}
+
+            {showModalLogout && (
+              <AnimatePresence>
+                <motion.div
+                  className="fixed inset-0 bg-black/40 backdrop-blur-xl z-40"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                />
+                <motion.div
+                  className="fixed inset-0 flex items-center justify-center z-50"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className="bg-slate-800 text-white p-6 rounded-2xl shadow-2xl text-center max-w-md w-full">
+                    <h2 className="text-3xl font-bold mb-2">Cerrando sesión</h2>
+                    <p className="text-slate-300">Espera un momento...</p>
+                    <div className="flex justify-center mt-4">
+                      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            )}
           </div>
-          <div className="sticky top-0 px-4 pb-3 backdrop-blur-xl">
-            <h1 className="text-xl font-semibold">Chats</h1>
+          <div className="sticky top-0 px-4 pt-1 pb-2 backdrop-blur-xl">
+            <h1 className="text-xl font-semibold mb-2">Chats</h1>
             <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </div>
           <ul className="max-h-[calc(100vh-10rem)] overflow-y-auto w-full">

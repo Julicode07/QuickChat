@@ -14,19 +14,19 @@ export const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new User({
-            email,
             name,
+            email,
             password: hashedPassword,
             lastLogin: new Date(),
         });
 
         await newUser.save();
 
-        generateTokenAndSetCookie(res, user._id);
+        generateTokenAndSetCookie(res, newUser._id);
 
         res.status(201).json({
             success: true, message: "User created successfully", user: {
-                ...user._doc,
+                ...newUser._doc,
                 password: undefined
             }
         });
@@ -45,12 +45,20 @@ export const login = async (req, res) => {
         });
 
         if (!user) {
-            return res.status(400).json({ message: "Usuario no encontrado" });
+            return res.status(400).json({
+                typeMessage: "user",
+                success: false,
+                message: "Usuario no encontrado"
+            });
         }
 
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
-            return res.status(400).json({ message: "Contraseña incorrecta" });
+            return res.status(400).json({
+                typeMessage: "password",
+                success: false,
+                message: "Contraseña incorrecta"
+            });
         }
 
         generateTokenAndSetCookie(res, user._id);
@@ -92,7 +100,12 @@ export const logout = async (req, res) => {
         user.isActive = false;
         await user.save();
 
-        res.clearCookie("token");
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None",
+            path: "/",
+        });
         res.json({ message: "Logout exitoso" });
     } catch (err) {
         console.error(err);
