@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from './context/AuthProvider';
 import { RequireAuth } from './context/RequireAuth';
-import Loader from './components/Loader';
+import Loader from './components/HomePage/Loader';
 import DelayedFallback from './components/DelayedFallback';
 
 import AuthForm from "./pages/AuthForm";

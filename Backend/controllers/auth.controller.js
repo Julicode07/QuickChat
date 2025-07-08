@@ -37,7 +37,7 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-    const { identifier, password } = req.body;
+    const { identifier, password, rememberMe = false } = req.body;
 
     try {
         const user = await User.findOne({
@@ -57,17 +57,18 @@ export const login = async (req, res) => {
             return res.status(400).json({
                 typeMessage: "password",
                 success: false,
-                message: "Contraseña incorrecta"
+                message: "Contraseña incorrecta"
             });
         }
 
-        generateTokenAndSetCookie(res, user._id);
+        generateTokenAndSetCookie(res, user._id, rememberMe);
 
         user.isActive = true;
         user.lastLogin = new Date();
         await user.save();
 
         res.json({
+            success: true,
             message: "Login exitoso",
             user: {
                 id: user._id,
@@ -79,10 +80,13 @@ export const login = async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Error en el login" });
+        res.status(500).json({
+            success: false,
+            typeMessage: "unknown",
+            message: "Error en el login"
+        });
     }
 };
-
 export const getMe = (req, res) => {
     if (!req.user) {
         return res

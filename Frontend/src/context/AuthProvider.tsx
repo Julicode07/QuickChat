@@ -12,7 +12,8 @@ interface AuthContextType {
     register: (name: string, email: string, password: string) => Promise<void>;
     login: (
         identifier: string,
-        password: string
+        password: string,
+        rememberMe?: boolean
     ) => Promise<{ success: boolean; typeMessage: string; message: string }>;
     logout: () => Promise<void>;
 }
@@ -80,7 +81,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
     };
 
-    const login = async (identifier: string, password: string) => {
+    const login = async (identifier: string, password: string, rememberMe: boolean = false) => {
         try {
             const res = await fetch(
                 `${import.meta.env.VITE_AUTH_BACKEND_URL}/api/auth/login`,
@@ -88,7 +89,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
-                    body: JSON.stringify({ identifier, password }),
+                    body: JSON.stringify({ identifier, password, rememberMe }),
                 }
             );
             const data = await res.json();

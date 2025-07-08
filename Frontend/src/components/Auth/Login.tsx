@@ -8,25 +8,26 @@ import { Button } from '../ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import Alert from '../Alert'
 
-
 export default function Login() {
     const { login } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
 
     const [typeMessage, setTypeMessage] = useState<string>('');
     const [message, setMessage] = useState<string>('');
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const response = await login(identifier, password);
+        const response = await login(identifier, password, rememberMe);
 
         if (!response.success) {
             setTypeMessage(response.typeMessage);
             setMessage(response.message);
         }
     };
+
     return (
         <div>
             <form onSubmit={handleLogin} className="space-y-5 text-slate-100">
@@ -64,7 +65,8 @@ export default function Login() {
                         <Input
                             type={showPassword ? "text" : "password"}
                             id="password"
-                            placeholder="••••••••"
+                            autoComplete='off'
+                            placeholder="Ingrese su contraseña"
                             className="text-slate-100 placeholder-slate-400 border border-slate-600"
                             onChange={(e) => setPassword(e.target.value)}
                         />
@@ -105,10 +107,15 @@ export default function Login() {
                     transition={{ delay: 0.7 }}
                 >
                     <div className="flex items-center gap-2">
-                        <Checkbox id="terms" className="cursor-pointer text-blue-600 focus:ring-blue-600" />
+                        <Checkbox
+                            id="terms"
+                            className="cursor-pointer text-blue-600 focus:ring-blue-600"
+                            checked={rememberMe}
+                            onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                        />
                         <label
                             htmlFor="terms"
-                            className="text-sm text-slate-300 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            className="text-sm text-slate-300 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                         >
                             Recuérdame
                         </label>
@@ -135,7 +142,7 @@ export default function Login() {
                 >
                     <Button
                         type="submit"
-                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg"
+                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg cursor-pointer"
                     >
                         Iniciar Sesión
                     </Button>

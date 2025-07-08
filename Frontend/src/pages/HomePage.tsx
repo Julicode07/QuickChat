@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useIsMobile } from "../hooks/useIsMobile";
 import MessageStatus from "../Icons/MessageStatus";
-import SearchInput from "../components/SearchInput";
+import SearchInput from "../components/HomePage/SearchInput";
 import chats, { Chat, filterChats } from "../utils/chatUtils";
+import ModalBackground from "@/components/HomePage/ModalBackground";
+import NewChatModal from "@/components/Chats/NewChat";
 
-const Background = React.lazy(() => import("../components/Background"));
+const Background = React.lazy(() => import("../components/HomePage/Background"));
 
 interface User {
   name: string;
@@ -24,6 +26,7 @@ function Homepage() {
   const [user, setUser] = useState<User | null>(null);
   const [showModalConfirmLogout, setShowModalConfirmLogout] = useState(false);
   const [showModalLogout, setShowModalLogout] = useState(false);
+  const [showModalNewChat, setShowModalNewChat] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -117,7 +120,10 @@ function Homepage() {
   return (
     <Background>
       <div className="relative z-50 flex h-full overflow-hidden">
-        <aside className="flex flex-col gap-1 w-full md:w-1/4 text-white">
+        <aside className="flex flex-col gap-1 w-full md:w-1/4 text-white relative">
+          <button onClick={() => setShowModalNewChat(true)} className="absolute w-10 h-10 rounded-full bg-blue-500 bottom-4 right-4 flex items-center justify-center">
+            <i className="ri-add-fill text-white text-2xl cursor-pointer"></i>
+          </button>
           <div className="flex justify-between gap-1 py-3 pl-3 pr-4 border-b-2 border-slate-900">
             <div className="flex items-center gap-1">
               <img src="/quickchat.webp" className="w-8 h-8" alt="Logo Quick Chat" />
@@ -166,20 +172,7 @@ function Homepage() {
 
             {showModalConfirmLogout && (
               <AnimatePresence>
-                <motion.div
-                  className="fixed inset-0 bg-black/40 backdrop-blur-xl z-40"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <motion.div
-                  className="fixed inset-0 flex items-center justify-center z-50"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3 }}
-                >
+                <ModalBackground>
                   <div className="bg-slate-800 text-white p-6 rounded-2xl shadow-2xl text-center max-w-md w-full">
                     <h2 className="text-3xl font-bold mb-2">
                       ¿Cerrar sesión?
@@ -202,27 +195,14 @@ function Homepage() {
                       </button>
                     </div>
                   </div>
-                </motion.div>
+                </ModalBackground>
               </AnimatePresence>
 
             )}
 
             {showModalLogout && (
               <AnimatePresence>
-                <motion.div
-                  className="fixed inset-0 bg-black/40 backdrop-blur-xl z-40"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.4 }}
-                />
-                <motion.div
-                  className="fixed inset-0 flex items-center justify-center z-50"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.4 }}
-                >
+                <ModalBackground>
                   <div className="bg-slate-800 text-white p-6 rounded-2xl shadow-2xl text-center max-w-md w-full">
                     <h2 className="text-3xl font-bold mb-2">Cerrando sesión</h2>
                     <p className="text-slate-300">Espera un momento...</p>
@@ -230,7 +210,21 @@ function Homepage() {
                       <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                     </div>
                   </div>
-                </motion.div>
+                </ModalBackground>
+              </AnimatePresence>
+            )}
+
+            {showModalNewChat && (
+              <AnimatePresence>
+                <ModalBackground>
+                  <NewChatModal
+                    show={showModalNewChat}
+                    onClose={() => setShowModalNewChat(false)}
+                    onSelectChat={(chat) => {
+                      setSelectedChat(chat);
+                    }}
+                  />
+                </ModalBackground>
               </AnimatePresence>
             )}
           </div>
@@ -329,7 +323,7 @@ function Homepage() {
                   <div className="flex gap-2 items-center">
                     <input
                       type="text"
-                      className="flex-1 bg-gray-700 text-gray-100 rounded-full px-4 py-2"
+                      className="flex-1 bg-gray-700 text-gray-100 rounded-full px-4 py-2 active:outline-none focus:outline-none"
                       placeholder="Escribe un mensaje..."
                     />
                     <button className="bg-blue-500 text-white rounded-full px-3 py-2">

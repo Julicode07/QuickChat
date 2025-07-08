@@ -69,8 +69,9 @@ export default function Register() {
                     <div className="relative">
                         <Input
                             type={showPassword ? "text" : "password"}
+                            autoComplete='off'
                             id="password"
-                            placeholder="••••••••"
+                            placeholder="Ingrese su contraseña"
                             className="bg-slate-800 text-slate-100 placeholder-slate-400 border border-slate-600"
                             onChange={(e) => setPassword(e.target.value)}
                         />
